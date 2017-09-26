@@ -3,8 +3,11 @@
  */
 
 
+var aaa = 1;
 
-(function(){
+
+var SolidityEnlighter = new function(){
+
 
     var createLineId = function(lineId){
 
@@ -96,22 +99,16 @@
     }
 
 
-    (function execute(){
+    this.update = function(){
+        var allSolidity = document.querySelectorAll(".solidityCode");
 
-        document.onreadystatechange = function () {
-            if (document.readyState === 'complete') {
+        for(var i = 0; i<allSolidity.length; i++){
 
-                var allSolidity = document.querySelectorAll(".solidityCode");
-
-                for(var i = 0; i<allSolidity.length; i++){
-
-                    parse(allSolidity[i]);
-                }
-            }
-        };
+            console.log("aa");
+            parse(allSolidity[i]);
+        }
+    };
 
 
-    })();
 
-
-})();
+};

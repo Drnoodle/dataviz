@@ -7,14 +7,17 @@
 
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Bree+Serif" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Zilla+Slab" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="style/style.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
 </head>
 
 
 
 <body>
-
 
 <nav>
 
@@ -24,10 +27,10 @@
         <div class="businessName">Blockchain</div>
 
         <div class="menu">
-            <a href="#">Home</a>
-            <a href="#">Blog</a>
-            <a href="#">Tutorial</a>
-            <a href="#">Contact</a>
+            <a href="news/index.html">Home</a>
+            <a href="news/create_your_own_token.html">create your own token</a>
+            <a href="news/DAO_hack.html">DAO hack</a>
+            <a href="news/firstVideo.html">Andreas M. Antonopoulos interview</a>
         </div>
 
     </div>
@@ -35,140 +38,88 @@
 </nav>
 
 
-<div id="floatingContent">
+<div id="cover">
 
-    <div class="contentWrapper">
+</div>
 
-        <!-- TODO : improve title & packshot-->
-        <h1>Welcome to Blockchain technology</h1>
-        <p class="packshot">all about blockchain crypto currencies</p>
+
+<div id="page">
+
+
+    <div id="displayer" style="opacity:1">
 
     </div>
 
 </div>
 
 
-<div class="bodyWrapper">
 
-    <div id="page1">
-
-
-        <!-- TODO : step by step tutorial
-        ref : https://www.youtube.com/watch?v=ILw-7mplRlI&t=21s
-        -->
-
-        <h2>Create your cryptocurrency in 15 minutes</h2>
-
-        <p>
-            This is text content. This is text content.This is text content.This is text content.
-            This is text content.This is text content.This is text content.This is text content.
-            This is text content.This is text content.This is text content.This is text content.
-            This is text content.This is text content.This is text content.This is text content.
-            This is text content.This is text content.This is text content.This is text content.
-        </p>
-
-        <p class="solidityCode">
-
-
-            pragma solidity ^0.4.0;
-
-            contract MyCoin {
-
-
-            mapping(address => uint) balances;
-
-            mapping(address => mapping(address => uint)) approved;
-
-            uint supply;
-
-
-
-            // ERC20
-
-            function totalSupply() constant returns (uint totalSupply) {
-
-            return supply;
-            }
-
-
-            function balanceOf(address _owner) constant returns(uint balance){
-
-            return balances[_owner];
-            }
-
-
-            function transfer(address to, uint value) returns(bool){
-
-            if(balances[msg.sender] < value && value > 0){
-            return false;
-            }
-
-            balances[msg.sender] -= value;
-            balances[to] += value;
-
-            return true;
-            }
-
-
-            function approve(address _spender, uint _value) returns(bool success){
-
-            if(balances[msg.sender] < _value){
-            return false;
-            }
-
-            approved[msg.sender][_spender] = _value;
-            return true;
-
-            }
-
-
-            function allowance(address _owner, address _spender) constant returns(uint remaining){
-
-            return approved[_owner][_spender];
-            }
-
-
-            function transferFrom(address _from, address _to, uint _value) returns(bool success){
-
-            if(balances[_from] >= _value
-            && approved[_from][msg.sender] >= _value
-            && _value >= 0){
-
-            approved[_from][msg.sender] -= _value;
-            balances[_from] -= _value;
-            balances[_to] += _value;
-
-            return true;
-            }
-
-            return false;
-            }
-
-
-            // others
-            function mint(uint mint){
-
-            balances[msg.sender] += mint;
-            supply += mint;
-            }
-
-
-            function getMyBalance() constant returns (uint){
-
-            return balances[msg.sender];
-            }
-
-
-
-            }
-        </p>
-    </div>
-
-</div>
-
-
+<script src="js/animations.js"></script>
 <script src="js/solidityparser.js"></script>
 
+<script type="text/javascript">
+
+
+    function load(url, animation) {
+
+        var bodyWrapper = document.querySelector("#displayer");
+
+        animation(function(){
+
+            bodyWrapper.style.opacity = 1;
+            for(var i = bodyWrapper.childNodes.length-1; i>=0; i--){
+                bodyWrapper.removeChild(bodyWrapper.childNodes[i]);
+            }
+
+            $("#displayer").load(url, function(){
+                SolidityEnlighter.update();
+            });
+
+        }.bind(this));
+
+    }
+
+
+    document.onreadystatechange = function () {
+        if (document.readyState === 'complete') {
+
+            (function () {
+
+                var fadeoutDuration = 500;
+
+                var displayer = document.querySelector("#displayer");
+
+                var links = document.querySelectorAll(".menu a");
+
+                console.log(links.length);
+
+                for (var i = 0; i < links.length; i++) {
+
+                    (function () {
+
+                        var currentLink = links[i];
+                        console.log(currentLink.href);
+
+                        var fadeOut = animations.fadeOut(displayer, fadeoutDuration);
+
+                        currentLink.onclick = function (event) {
+                            event.preventDefault();
+                            load(currentLink.href, fadeOut);
+                        };
+
+                    })();
+
+                }
+
+            })();
+        }
+
+        load("news/index.html", animations.noAnimation);
+    };
+
+
+
+</script>
 
 </body>
 
