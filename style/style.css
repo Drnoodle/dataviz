@@ -1,0 +1,143 @@
+
+html, body {
+    padding:0px;
+    margin:0px;
+    font-family: 'Montserrat';
+    background-color:rgb(245,245,245);
+}
+
+
+a {
+    text-decoration: none;
+    background-color:transparent;
+    color:inherit;
+}
+
+nav {
+    z-index: 10;
+    background-color: rgb(25, 25, 25);
+    position:absolute;
+    left:0px;
+    top:0px;
+    width:100%;
+    height:50px;
+}
+
+nav .contentWrapper {
+    z-index: 10;
+    margin-top:15px;
+}
+
+nav a {
+    color: rgb(246, 246, 246);
+    padding-left:15px;
+    padding-right:15px;
+}
+
+nav .businessName {
+    position:absolute;
+    left:5%;
+    color:rgb(245,245,245);
+}
+
+nav .menu {
+    z-index: 10;
+    position:absolute;
+    right:5%;
+}
+
+
+
+
+#floatingContent {
+    height:300px;
+    color:rgb(245,245,245);
+    overflow: hidden;
+}
+
+
+#floatingContent .packshot {
+    color:rgb(245,245,245);
+    font-size:2em;
+}
+
+
+#floatingContent .contentWrapper{
+
+    background:url('../images/banner.jpg');
+    padding-top:75px;
+    padding-bottom:75px;
+    z-index: 20;
+    text-align: center;
+}
+
+#floatingContent .banner {
+
+    z-index: 0;
+    width:100%;
+    height:300px;
+    overflow: hidden;
+}
+
+
+h1 {
+    font-size: 4em;
+}
+h1, h2{
+    color:inherit;
+}
+
+h2 {
+    margin-bottom:40px;
+}
+
+
+#page1 {
+    margin-top:100px;
+    color:rgb(35,35,35);
+}
+
+.bodyWrapper {
+    text-align: left;
+    margin-left:10%;
+    width:60%;
+}
+
+
+
+.solidityCode {
+    background-color: rgb(235, 235, 235);
+    color: rgb(20, 20, 20);
+    box-shadow: 1px 1px 3px #888888;
+}
+
+.line {
+    display: block;
+}
+
+.lineId {
+    display:inline-block;
+    background-color: rgb(222, 222, 222);
+    color: #b7b7b7;
+    margin-right: 10px;
+    text-align: center;
+    width:40px;
+}
+
+
+.comment {
+    color: rgb(77, 167, 85);
+}
+
+.keyword {
+    color: #db4447;
+}
+
+
+.bodyWrapper p {
+    margin-top:40px;
+    margin-bottom:40px;
+    font-family: 'Open Sans';
+    color: rgb(28, 28, 28);
+
+}
