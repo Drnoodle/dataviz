@@ -22,6 +22,7 @@ In the map you can filter the flights by:
 - Type: Military/ Non-military
 - Year: Range of years during which the crash occurred
 - Number of deaths: number of victims of that flight
+When the mouse of the user is put on an edge, further details about the crash are visualised.
 
 ### 2. Plot of the number of injuries/deaths per year
 This view is located on the bottom of the map.
