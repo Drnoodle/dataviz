@@ -1,4 +1,4 @@
-# dataviz
+# Visualising the airplane crashes since 1908
 In this project, we will realise an interactive visualisation of the airplane crashes since 1908.
 
 ## Data describtion: 
