@@ -1,127 +1,194 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
-
-    <!-- TODO : improve the title | find a website name-->
-    <title>Blockchain Tech</title>
-
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Bree+Serif" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Zilla+Slab" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="style/style.css">
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
+    <meta charset="UTF-8">
+    <title>Avion aircrash visualization</title>
+    <link href="https://fonts.googleapis.com/css?family=Bree+Serif|Montserrat:200,400,600|Open+Sans:100,200,400,600|Francois+One" rel="stylesheet">
 </head>
-
 
 
 <body>
 
-<nav>
+<style type="text/css">
 
-    <div class="contentWrapper">
+    html {
+        background-image:url("images/noise.png");
+        background-color:#404c58;
+        color:#98a5b1;
+    }
 
-        <!-- TODO  : complete name-->
-        <div class="businessName">Blockchain</div>
+    header{
+        position:fixed;
+        left:0%;
+        right:0%;
+        top:0%;
+        height:100px;
+        background-color:white;
+        box-shadow: 0px 0px 5px;
+    }
 
-        <div class="menu">
-            <a href="news/index.html">Home</a>
-            <a href="news/create_your_own_token.html">create your own token</a>
-            <a href="news/DAO_hack.html">DAO hack</a>
-            <a href="news/firstVideo.html">Andreas M. Antonopoulos interview</a>
-        </div>
+    aside {
+        background-image:url("images/noise.png");
+        position:fixed;
+        left:0px;
+        width:20%;
+        top:0px;
+        height:100%;
+        background-color: #3e4954;
+    }
 
-    </div>
-
-</nav>
-
-
-<div id="cover">
-
-</div>
-
-
-<div id="page">
-
-
-    <div id="displayer" style="opacity:1">
-
-    </div>
-
-</div>
-
-
-
-<script src="js/animations.js"></script>
-<script src="js/solidityparser.js"></script>
-
-<script type="text/javascript">
-
-
-    function load(url, animation) {
-
-        var bodyWrapper = document.querySelector("#displayer");
-
-        animation(function(){
-
-            bodyWrapper.style.opacity = 1;
-            for(var i = bodyWrapper.childNodes.length-1; i>=0; i--){
-                bodyWrapper.removeChild(bodyWrapper.childNodes[i]);
-            }
-
-            $("#displayer").load(url, function(){
-                SolidityEnlighter.update();
-            });
-
-        }.bind(this));
-
+    #contentWrapper {
+        position:fixed;
+        left:25%;
+        width:65%;
+        top:30px;
     }
 
 
-    document.onreadystatechange = function () {
-        if (document.readyState === 'complete') {
+    h2 {
+        display:inline-block;
+        font-size: 1.7em;
+        margin-bottom:14px;
+        margin:0px;
+        font-family: 'Montserrat', SansSerif;
+        text-align: left;
+        line-height: 1.1em;
+        color:#98a5b1;
 
-            (function () {
+    }
 
-                var fadeoutDuration = 500;
+    .brand {
+        font-family: Montserrat;
+        margin-left: 30px;
+        border:1px solid #98a5b1;
+        color: #98a5b1;
+        margin-right:50px;
+        font-size: 0.55em;
+        padding-left:5px;
+        padding-right:5px;
+    }
 
-                var displayer = document.querySelector("#displayer");
+    .airlines {
+        width:100%;
+        font-size: 0.8em;
+        font-family: "Open Sans";
+        text-transform: uppercase;
+        text-align: center;
+    }
 
-                var links = document.querySelectorAll(".menu a");
+    .airlines td{
+        height:40px;
+        padding-left:10px;
+    }
 
-                console.log(links.length);
+    .airlines tr td:first-child{
+        text-align: left;
+    }
 
-                for (var i = 0; i < links.length; i++) {
+    .airlines tr:hover{
+        background-color:rgb(241,230,105);
+        cursor: pointer;
+        color:black;
+    }
 
-                    (function () {
+    .airlines .tableTitle{
+        font-family: Montserrat;
+        text-transform: uppercase;
+        background-color: #4dffc8;
+        color:rgb(57,57,57);
+        padding-left:0px;
+    }
 
-                        var currentLink = links[i];
-                        console.log(currentLink.href);
+    .menuDesc {
+        text-align: justify;
+        font-family: "Open Sans";
+        font-weight: lighter;
+        font-size: 0.7em;
+        padding:10px;
+    }
 
-                        var fadeOut = animations.fadeOut(displayer, fadeoutDuration);
+    .imgTable {
+        padding-left:10px;
+        position:absolute;
+        bottom:5px;
+    }
 
-                        currentLink.onclick = function (event) {
-                            event.preventDefault();
-                            load(currentLink.href, fadeOut);
-                        };
+    .imgTable td{
+        width:30%;
+    }
+    .imgTable img {
+        border-radius: 50%;
+        width:75%;
+        filter: grayscale(100%);
+    }
+    .imgTable img:hover {
+        filter: grayscale(0%);
+    }
+</style>
 
-                    })();
 
-                }
+<aside>
 
-            })();
-        }
+    <h1><span class="brand">Data visualization EPFL</span> </h1>
 
-        load("news/index.html", animations.noAnimation);
-    };
+    <table class="imgTable">
+        <tr>
+            <td><img src="images/1.jpg" alt="author1"/></td>
+            <td><img src="images/2.jpg" alt="author2"/></td>
+            <td><img src="images/3.jpg" alt="author3"/></td>
+        </tr>
+    </table>
+
+    <p class="menuDesc">
+        This is text content. This is text content.
+        This is text content.This is text content.
+        This is text content.This is text content.This is text content.
+        This is text content.This is text content.This is text content.
+    </p>
+
+    <table class="airlines">
+        <tr><td>airline 1</td><td>10</td><td>0.5%</td></tr>
+        <tr><td>airline 2</td><td>10</td><td>0.5%</td></tr>
+        <tr><td>airline 3</td><td>10</td><td>0.5%</td></tr>
+        <tr><td>airline 4</td><td>10</td><td>0.5%</td></tr>
+        <tr><td>airline 4</td><td>10</td><td>0.5%</td></tr>
+        <tr><td>airline 4</td><td>10</td><td>0.5%</td></tr>
+        <tr><td>airline 4</td><td>10</td><td>0.5%</td></tr>
+    </table>
+</aside>
+
+<div id="contentWrapper">
+
+    <h2>Airplane crashed between X and Y</h2>
+</div>
+
+
+<script src="myAnimations.js"></script>
+<script type="text/javascript">
+
+    var menuLink = document.querySelectorAll(".airlines tr");
+
+    for(var i = 0; i<menuLink.length; i++){
+
+        (function(){
+
+            var currentLink =  menuLink[i];
+            var airlineTxt = currentLink.querySelector("td").textContent;
+
+            currentLink.addEventListener("click",function(e){
+
+                var newTitle = "Airplane crashed between " +airlineTxt+ " and " +airlineTxt;
+                titleAnim(document.querySelector("h2"), newTitle, "#f1e669",  1000);
+            });
+
+        })();
+
+    }
 
 
 
 </script>
 
 </body>
-
-
 </html>
