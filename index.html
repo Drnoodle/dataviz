@@ -14,8 +14,8 @@
 
     html {
         background-image:url("images/noise.png");
-        background-color:#404c58;
-        color:#98a5b1;
+        background-color:#2FFFD6;
+        color:rgb(175,175,175);
     }
 
     header{
@@ -35,34 +35,60 @@
         width:20%;
         top:0px;
         height:100%;
-        background-color: #3e4954;
+        z-index: 100;
+        background-color: rgba(0,0,0,0.95);
+        border-right: 1px solid black;
+
     }
 
     #contentWrapper {
         position:fixed;
-        left:25%;
-        width:65%;
-        top:30px;
+        left:0%;
+        right:0%;
+        top:0%;
+        bottom:0%;
+        z-index:10;
+    }
+
+    #contentWrapper .map{
+        width:100%;
+        height:100%;
+        z-index:11;
     }
 
 
     h2 {
-        display:inline-block;
+
         font-size: 1.7em;
-        margin-bottom:14px;
-        margin:0px;
         font-family: 'Montserrat', SansSerif;
         text-align: left;
         line-height: 1.1em;
-        color:#98a5b1;
+        color:white;
+        position:fixed;
+        top:20px;
+        left:25%;
+        z-index: 15;
+        text-transform: uppercase;
+        font-weight: bolder;
+        padding-left:5px;
+        padding-right:5px;
 
+    }
+
+
+    h3 {
+        color: #2FFFD6;
+        font-family: 'Open Sans', SansSerif;
+        font-weight: lighter;
+        font-size: 0.7em;
+        margin-left:10px;
     }
 
     .brand {
         font-family: Montserrat;
         margin-left: 30px;
-        border:1px solid #98a5b1;
-        color: #98a5b1;
+        border:1px solid #2FFFD6;
+        color:inherit;
         margin-right:50px;
         font-size: 0.55em;
         padding-left:5px;
@@ -71,14 +97,15 @@
 
     .airlines {
         width:100%;
-        font-size: 0.8em;
+        font-size: 0.7em;
         font-family: "Open Sans";
         text-transform: uppercase;
         text-align: center;
+        border-collapse: collapse;
     }
 
     .airlines td{
-        height:40px;
+        height:25px;
         padding-left:10px;
     }
 
@@ -87,18 +114,11 @@
     }
 
     .airlines tr:hover{
-        background-color:rgb(241,230,105);
+        background-color:#2FFFD6;
         cursor: pointer;
         color:black;
     }
 
-    .airlines .tableTitle{
-        font-family: Montserrat;
-        text-transform: uppercase;
-        background-color: #4dffc8;
-        color:rgb(57,57,57);
-        padding-left:0px;
-    }
 
     .menuDesc {
         text-align: justify;
@@ -106,13 +126,9 @@
         font-weight: lighter;
         font-size: 0.7em;
         padding:10px;
+        color:rgb(120,120,120);
     }
 
-    .imgTable {
-        padding-left:10px;
-        position:absolute;
-        bottom:5px;
-    }
 
     .imgTable td{
         width:30%;
@@ -132,20 +148,16 @@
 
     <h1><span class="brand">Data visualization EPFL</span> </h1>
 
-    <table class="imgTable">
-        <tr>
-            <td><img src="images/1.jpg" alt="author1"/></td>
-            <td><img src="images/2.jpg" alt="author2"/></td>
-            <td><img src="images/3.jpg" alt="author3"/></td>
-        </tr>
-    </table>
-
     <p class="menuDesc">
         This is text content. This is text content.
         This is text content.This is text content.
         This is text content.This is text content.This is text content.
         This is text content.This is text content.This is text content.
     </p>
+
+    <br/>
+
+    <h3>This is title 2</h3>
 
     <table class="airlines">
         <tr><td>airline 1</td><td>10</td><td>0.5%</td></tr>
@@ -155,17 +167,400 @@
         <tr><td>airline 4</td><td>10</td><td>0.5%</td></tr>
         <tr><td>airline 4</td><td>10</td><td>0.5%</td></tr>
         <tr><td>airline 4</td><td>10</td><td>0.5%</td></tr>
+        <tr><td>airline 3</td><td>10</td><td>0.5%</td></tr>
+        <tr><td>airline 4</td><td>10</td><td>0.5%</td></tr>
+        <tr><td>airline 4</td><td>10</td><td>0.5%</td></tr>
+        <tr><td>airline 4</td><td>10</td><td>0.5%</td></tr>
+        <tr><td>airline 4</td><td>10</td><td>0.5%</td></tr>
     </table>
 </aside>
 
-<div id="contentWrapper">
 
+<div id="contentWrapper">
     <h2>Airplane crashed between X and Y</h2>
+    <div class="map"></div>
 </div>
+
+
+
+
+
+<script>
+
+    function initMap() {
+
+        // Styles a map in night mode.
+        var map = new google.maps.Map(document.querySelector('.map'), {
+            center: {lat: 40.674, lng: -73.945},
+            zoom: 3,
+            backgroundColor:"#FF423B",
+            clickableIcons:false,
+            disableDefaultUI:true,
+            disableDoubleClickZoom:true,
+            styles: [
+                {
+                    "elementType": "geometry",
+                    "stylers": [
+                        {
+                            "color": "#212121"
+                        }
+                    ]
+                },
+                {
+                    "elementType": "geometry.fill",
+                    "stylers": [
+                        {
+                            "color": "#181818"
+                        }
+                    ]
+                },
+                {
+                    "elementType": "labels.icon",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "elementType": "labels.text.fill",
+                    "stylers": [
+                        {
+                            "color": "#757575"
+                        }
+                    ]
+                },
+                {
+                    "elementType": "labels.text.stroke",
+                    "stylers": [
+                        {
+                            "color": "#212121"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "administrative",
+                    "elementType": "geometry",
+                    "stylers": [
+                        {
+                            "color": "#757575"
+                        },
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "administrative.country",
+                    "elementType": "geometry.fill",
+                    "stylers": [
+                        {
+                            "color": "#ff4238"
+                        },
+                        {
+                            "weight": 8
+                        }
+                    ]
+                },
+                {
+                    "featureType": "administrative.country",
+                    "elementType": "labels.text.fill",
+                    "stylers": [
+                        {
+                            "color": "#e94344"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "administrative.land_parcel",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "administrative.land_parcel",
+                    "elementType": "geometry.fill",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "administrative.land_parcel",
+                    "elementType": "labels.text.fill",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "administrative.locality",
+                    "elementType": "geometry.fill",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "administrative.locality",
+                    "elementType": "labels.text.fill",
+                    "stylers": [
+                        {
+                            "color": "#e25755"
+                        },
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "poi",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "poi",
+                    "elementType": "labels.text.fill",
+                    "stylers": [
+                        {
+                            "color": "#757575"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "poi.park",
+                    "elementType": "geometry",
+                    "stylers": [
+                        {
+                            "color": "#181818"
+                        },
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "poi.park",
+                    "elementType": "geometry.fill",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "poi.park",
+                    "elementType": "labels.text.fill",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "poi.park",
+                    "elementType": "labels.text.stroke",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "road",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "road",
+                    "elementType": "geometry.fill",
+                    "stylers": [
+                        {
+                            "color": "#2c2c2c"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "road",
+                    "elementType": "labels.icon",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "road",
+                    "elementType": "labels.text.fill",
+                    "stylers": [
+                        {
+                            "color": "#8a8a8a"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "road.arterial",
+                    "elementType": "geometry",
+                    "stylers": [
+                        {
+                            "color": "#373737"
+                        },
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "road.arterial",
+                    "elementType": "geometry.fill",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "road.highway",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "road.highway",
+                    "elementType": "geometry",
+                    "stylers": [
+                        {
+                            "color": "#3c3c3c"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "road.highway",
+                    "elementType": "geometry.fill",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "road.highway.controlled_access",
+                    "elementType": "geometry",
+                    "stylers": [
+                        {
+                            "color": "#4e4e4e"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "road.highway.controlled_access",
+                    "elementType": "geometry.fill",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "road.local",
+                    "elementType": "geometry.fill",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "road.local",
+                    "elementType": "labels.text.fill",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "transit",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "transit",
+                    "elementType": "labels.text.fill",
+                    "stylers": [
+                        {
+                            "color": "#757575"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "water",
+                    "elementType": "geometry",
+                    "stylers": [
+                        {
+                            "color": "#000000"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "water",
+                    "elementType": "geometry.fill",
+                    "stylers": [
+                        {
+                            "color": "#ff4238"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "water",
+                    "elementType": "geometry.stroke",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "water",
+                    "elementType": "labels.text.fill",
+                    "stylers": [
+                        {
+                            "color": "#2b2b2b"
+                        }
+                    ]
+                }
+            ]
+        });
+    }
+</script>
+
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBv4Q3leCDbOwCtjyG7MZ4EWIJkmFvV36A&format=jpg&callback=initMap"
+        async defer></script>
+
+
 
 
 <script src="myAnimations.js"></script>
 <script type="text/javascript">
+
+
 
     var menuLink = document.querySelectorAll(".airlines tr");
 
@@ -179,7 +574,7 @@
             currentLink.addEventListener("click",function(e){
 
                 var newTitle = "Airplane crashed between " +airlineTxt+ " and " +airlineTxt;
-                titleAnim(document.querySelector("h2"), newTitle, "#f1e669",  1000);
+                titleAnim(document.querySelector("h2"), newTitle, "#2FFFD6",  1000);
             });
 
         })();
