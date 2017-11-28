@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Animating Symbols</title>
+    <style>
+        /* Always set the map height explicitly to define the size of the div
+         * element that contains the map. */
+        #map {
+            height: 100%;
+        }
+        /* Optional: Makes the sample page fill the window. */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    <script type="text/javascript" src="./map.js"></script>
+</head>
+<body>
+<div id="map"></div>
+<script>
+    function init(){
+        map = initMap();
+        var leftPoint = new google.maps.LatLng(38.8951,-77.0364);
+        var rightPoint = new google.maps.LatLng(26.8206,30.8025);
+        var crashPoint = new google.maps.LatLng(26.3351,17.2283);
+        visualize_crash(leftPoint,rightPoint,crashPoint,map);
+    }
+
+
+
+</script>
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDnhyvOh3z2YMt4e6E-T9B-vAeQp2IxmUY&callback=init&libraries=geometry">
+</script>
+</body>
+</html>
