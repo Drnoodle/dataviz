@@ -140,39 +140,34 @@ function animateCrash(dep,arr,crash,targetSVG, planeSVG,depLabel, arrLabel, cras
 
 
 /**
- * @param filePath
+ * Created by noodle on 10.12.17.
+ */
+
+
+/**  * @param filePath  *  * Return Promises<DataReader : fromDate, toDate> 
  *
- * Return Promises<DataReader : fromDate, toDate>
- *
- * CSV : Date,Time,Location,Operator,Flight #,Route,Type,Registration,cn/In,Aboard,Fatalities,Ground,Summary
- *
- * id1, id2 ,Date,Time,Location,Operator,Route,Type,Aboard,Fatalities,Summary,LatLongCrash,Start City Geo Crash,End City Geo Crash
+ * id#Date#Location#Operator#Route#Type#Aboard#Fatalities#Summary#LatLongCrash#Start City Crash#End City Crash#Start City Geo Crash#End City Geo Crash#To_show
  */
 
 function load_data(filePath){
 
 
     function parsePosition(latLongString){
-
         var resStr = latLongString.substr(1,latLongString.length-1).split(",");
-
         return {
             lat: parseFloat(resStr[0]),
-            long:parseFloat(resStr[0])
+            long:parseFloat(resStr[1])
         };
-
     }
 
     function lineParser(line){
 
-        var cols = line.split(",");
 
-        console.log(line);
+        var cols = line.split("#");
 
-        var crash = parsePosition(cols[11]);
+        var crash = parsePosition(cols[9]);
         var depature = parsePosition(cols[12]);
         var arrival = parsePosition(cols[13]);
-
         return {
             id:cols[0],
             dep_lat:depature.lat,
@@ -181,68 +176,62 @@ function load_data(filePath){
             arr_long:arrival.long,
             crash_lat:crash.lat,
             crash_long:crash.long,
-            description:cols[10],
+            description:cols[8],
             nb_a_bord:0,
             nb_mort:0,
-            year:parseInt(cols[2].split("/")[2])
+            year:parseInt(cols[1].split("/")[2])
         };
-
-
     }
+
+    function isRelevant(line){
+        return line.split("#")[14] == "True";
+    }
+
+
+
 
 
     return new Promise(function(resolve, error){
 
         var rawFile = new XMLHttpRequest();
         rawFile.open("GET", filePath, true);
-        rawFile.onreadystatechange = function() {
-            if (rawFile.readyState === 4) {
-                var allText = rawFile.responseText;
 
+        rawFile.onreadystatechange = function() {
+
+            if (rawFile.readyState == 4) {
+
+                var allText = rawFile.responseText;
                 var lines = allText.split("\n");
                 var objects = [];
-
                 for(var i = 1; i<lines.length; i++){
-                    objects.push(lineParser(lines[i]))
+                    if(isRelevant(lines[i])){
+                        objects.push(lineParser(lines[i]))
+                    }
                 }
 
                 resolve(new function(){
-                    this.allData = objects;
-                    this.getData = function(fromYear, toYear){
 
+                    this.allData = objects;
+
+                    this.getData = function(fromYear, toYear){
                         var requiredData = [];
-                        for(var i = 0; i<allData.length; i++){
-                            if(fromYear <= allData[i].year && allData[i].year <= toYear){
-                                requiredData.push(allData[i]);
+                        for(var i = 0; i<this.allData.length; i++){
+                            if(fromYear <= this.allData[i].year && this.allData[i].year <= toYear){
+                                requiredData.push(this.allData[i]);
                             }
                         }
-
                         return requiredData;
                     }
                 });
 
             }
-            else {
-                error();
-            }
+
         };
 
         rawFile.send();
-
     });
 
 }
-
-
-myData = null;
-
-load_data("test_data_hugo.csv").then(function(res, err){
-    console.log(res);
-    myData = res;
-    res.getData(1900,2000)
-
-});
-
 
 
 
@@ -277,31 +266,42 @@ async function animateRange (){
     await visualiseData(dataCopy,map,targetSVG,planeSVG);
     showCrashes();
 }
-/*
+
 function init_range_selector(begin,end){
     $( function() {
         $( "#slider-range" ).slider({
             range: true,
             min: 1908,
-            max: 2008,
+            max: 2010,
             animate: true,
             values: [ begin, end ],
             slide: function( event, ui ) {
+
+                if(dataLoader == null){
+                    return;
+                }
+
                 var beginYear = ui.values[ 0 ];
                 var endYear = ui.values[ 1 ];
-                $( "#amount" ).val( beginYear + "," + endYear );
-                data = load_data_for_range(beginYear,endYear);
+
+                document.querySelector(".yearRangeTable .fromValue").innerHTML = beginYear;
+                document.querySelector(".yearRangeTable .toValue").innerHTML = endYear;
+
+                console.log(beginYear);
+
+                data=dataLoader.getData(beginYear, endYear);
                 map["dataProvider"]["images"]=[];
                 map["dataProvider"]["lines"]=[];
                 map.validateData();
-                showCrashes();
+                //showCrashes();
+
+
             }
         });
         $( "#amount" ).val(   $( "#slider-range" ).slider( "values", 0 ) +
             " - " + $( "#slider-range" ).slider( "values", 1 ) );
     } );
 }
-
 
 
 
@@ -389,5 +389,3 @@ function staticCrash(dep,arr,crash,targetSVG, planeSVG,depLabel, arrLabel, crash
     map["dataProvider"]["images"].push(depTarget,arrTarget,crashImg);
     map.validateData();
 }
-
-*/
