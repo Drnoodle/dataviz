@@ -8,6 +8,170 @@ function init_map (config){
 
 }
 
+
+var mouseManager  = new function MousePosition(){
+
+
+    var x = 0, y = 0;
+
+    var callbacks = [];
+
+    document.querySelector("body").onmousemove = function(mouseEvent){
+
+        x = mouseEvent ? mouseEvent.screenX : typeof(window.event) != 'undefined' ? window.event.screenX : this.x;
+        y = mouseEvent ? mouseEvent.screenY : typeof(window.event) != 'undefined' ? window.event.screenY : this.y;
+
+        for(var i = 0; i<callbacks.length; i++){
+            callbacks[i](x,y);
+        }
+
+    };
+
+
+    this.addCallback = function(callback){
+        callbacks.push(callback);
+    };
+
+
+    this.getX = function(){
+        return x;
+    };
+
+    this.getY = function(){
+        return y;
+    };
+
+};
+
+
+mouseManager.addCallback(function(currX, currY){
+
+    var isControlerOpen = document.querySelector("aside").style.visibility != "hidden";
+
+    if(currX < 80 && !isControlerOpen){
+        document.querySelector("aside").style.visibility = "visible";
+    }
+    else if(currX > 300 && isControlerOpen){
+        document.querySelector("aside").style.visibility = "hidden";
+    }
+
+
+});
+
+
+document.addEventListener('DOMContentLoaded', function(){
+
+    document.querySelector(".yearRangeTable .fromValue").innerHTML = beginYear;
+    document.querySelector(".yearRangeTable .toValue").innerHTML = endYear;
+
+}, false);
+
+
+var sideMenuManager = new function(){
+
+    var companyResult = null;
+
+    document.addEventListener('DOMContentLoaded', function(){
+
+        companyResult = document.querySelectorAll(".airlines tr");
+    }.bind(this));
+
+    this.updateResult = function(sortedResultList){
+
+        if(companyResult == null){
+            return;
+        }
+
+        console.log(sortedResultList[0][1]);
+        var totalCrashes = sortedResultList.reduce( (acc, e)=>acc+e[1],0);
+        console.log(totalCrashes);
+
+        for(var i = 0; i< Math.min(sortedResultList.length, 10); i++ ){
+
+            var cells = companyResult[i+1].querySelectorAll("td");
+            cells[0].innerHTML = sortedResultList[i][0].substr(0,30);
+            cells[1].innerHTML = sortedResultList[i][1];
+            cells[2].innerHTML = Math.round(parseFloat(sortedResultList[i][1])/totalCrashes*100)+"%";
+
+        }
+
+    };
+
+};
+
+
+
+
+var CrashChart = new function(){
+
+    var marginX = 10;
+    var marginY = 10;
+    var chartWidth = 300;
+    var chartHeight = 150;
+
+    var path = null;
+
+    document.addEventListener('DOMContentLoaded', function() {
+
+        var chart = d3.select("svg")
+            .attr("width", chartWidth)
+            .attr("height", chartHeight)
+            .append("g");
+
+        path = chart.append("path")
+            .attr("class", "chartPath")
+            .style("stroke-width", 2)
+            .style("stroke-opacity", 0.7)
+            .style("stroke", "#904b58")
+            .style("fill", "none");
+
+    }.bind(this));
+
+
+    this.update = function(fromYear, toYear, data){
+
+        if(path == null){
+            return;
+        }
+        var minX = fromYear;
+        var maxX = toYear;
+        var minY = 0;
+        var maxY = 0;
+
+        for(var i = 0; i<data.length; i++){
+            maxY = Math.max(maxY, data[i][1]);
+        }
+
+
+        var xScaler = d3.scaleLinear()
+            .domain([minX, maxX])
+            .range([marginX,chartWidth-marginX]);
+
+        var yScaler = d3.scaleLinear()
+            .domain([minY, maxY])
+            .range([chartHeight - marginY,marginY]);
+
+        var line = d3.line()
+            .x(function(d){
+                return xScaler(d[0]);
+            })
+            .y(function(d){
+                return yScaler(d[1]);
+            });
+
+        path.attr("d", line(data));
+
+    }.bind(this);
+
+
+}
+
+
+
+
+
+
+
 function animateCrash(dep,arr,crash,targetSVG, planeSVG,depLabel, arrLabel, crashDescription,map,crashId){
     /**
      * Animate single crash
@@ -170,6 +334,7 @@ function load_data(filePath){
         var arrival = parsePosition(cols[13]);
         return {
             id:cols[0],
+            company:cols[3],
             dep_lat:depature.lat,
             dep_long:depature.long,
             arr_lat:arrival.lat,
@@ -213,6 +378,26 @@ function load_data(filePath){
 
                     this.allData = objects;
 
+                    this.yearAndCrashes = (function(){
+
+                        var tmp = {};
+
+                        for(var i = 0; i<objects.length; i++){
+                            if(!(objects[i].year in tmp)){
+                                tmp[objects[i].year] = 0;
+                            }
+                            tmp[objects[i].year] +=1;
+                        }
+
+                        var yearAndCrashes = [];
+
+                        for(var key in tmp){
+                            yearAndCrashes.push([parseInt(key), tmp[key]]);
+                        }
+
+                        return yearAndCrashes;
+                    })();
+
                     this.getData = function(fromYear, toYear){
                         var requiredData = [];
                         for(var i = 0; i<this.allData.length; i++){
@@ -221,7 +406,12 @@ function load_data(filePath){
                             }
                         }
                         return requiredData;
+                    };
+
+                    this.crashByYear = function(fromYear, toYear){
+                        return this.yearAndCrashes.filter(t => fromYear <=  t[0] && t[0]<=toYear);
                     }
+
                 });
 
             }
@@ -240,21 +430,21 @@ function visualiseData(data,map,targetSVG,planeSVG){
      * visualise the all the crashes
      */
     return new Promise(function(resolve,reject){
-    if (data.length==0) {
-        return;}
-    var crash = data.shift();
-    var dep = [crash["dep_lat"],crash["dep_long"]];
-    var arr = [crash["arr_lat"],crash["arr_long"]];
-    var crashPos = [crash["crash_lat"],crash["crash_long"]];
-    var depLabel= "paris";
-    var arrLabel = "Singapour";
-    var crashDescription= crash["description"];
-    var crashId = crash['id'];
-    animateCrash
-    (dep,arr,crashPos,targetSVG, planeSVG,depLabel, arrLabel, crashDescription,map,crashId)
-        .then(function(res,err){
-            visualiseData(data,map,targetSVG,planeSVG);
-        }) ;
+        if (data.length==0) {
+            return;
+        }
+        var crash = data.shift();
+        var dep = [crash["dep_lat"],crash["dep_long"]];
+        var arr = [crash["arr_lat"],crash["arr_long"]];
+        var crashPos = [crash["crash_lat"],crash["crash_long"]];
+        var depLabel= "paris";
+        var arrLabel = "Singapour";
+        var crashDescription= crash["description"];
+        var crashId = crash['id'];
+        animateCrash(dep,arr,crashPos,targetSVG, planeSVG,depLabel, arrLabel, crashDescription,map,crashId)
+            .then(function(res,err){
+                visualiseData(data,map,targetSVG,planeSVG);
+            }) ;
     });
 }
 
@@ -268,6 +458,8 @@ async function animateRange (){
 }
 
 function init_range_selector(begin,end){
+
+
     $( function() {
         $( "#slider-range" ).slider({
             range: true,
@@ -287,20 +479,47 @@ function init_range_selector(begin,end){
                 document.querySelector(".yearRangeTable .fromValue").innerHTML = beginYear;
                 document.querySelector(".yearRangeTable .toValue").innerHTML = endYear;
 
-                console.log(beginYear);
 
                 data=dataLoader.getData(beginYear, endYear);
+
                 map["dataProvider"]["images"]=[];
                 map["dataProvider"]["lines"]=[];
                 map.validateData();
                 //showCrashes();
 
 
+                var crashCompanyCounter = {};
+
+                for(var i = 0; i<data.length; i++){
+                    if(!(data[i].company in crashCompanyCounter)){
+                        crashCompanyCounter[data[i].company] = 0;
+                    }
+                    crashCompanyCounter[data[i].company] += 1;
+                }
+
+                var tmp = [];
+
+                for(var key in crashCompanyCounter){
+                    tmp.push([key, crashCompanyCounter[key]]);
+                }
+
+                crashCompanyCounter = tmp;
+                crashCompanyCounter.sort(function(e1,e2){ return e2[1]-e1[1];});
+
+                CrashChart.update(2008, 2009, dataLoader.crashByYear(1500,2010));
+
+                sideMenuManager.updateResult(crashCompanyCounter);
+
             }
         });
         $( "#amount" ).val(   $( "#slider-range" ).slider( "values", 0 ) +
             " - " + $( "#slider-range" ).slider( "values", 1 ) );
     } );
+
+
+
+
+
 }
 
 
