@@ -546,13 +546,10 @@ function showCrashes(){
 
 function staticCrash(dep,arr,crash,targetSVG, planeSVG,depLabel, arrLabel, crashDescription,map,crashId) {
     var arc = -0.8;
-    var shadowAlpha = 0.3;
-    var planeScale = 0.05;
-    var dashLength = 2;
-    var flightLineAlpha = 0.5;
+    var dashLength = 3;
+    var flightLineAlpha = 1;
     var initialImgAlpha = 1;
-    var afterAnimImgAlpha = 0.5;
-    var positionScale = 2;
+
     var flightLineArc = {
         "id": "flightLineArc"+crashId,
         "dashLength": dashLength,
@@ -566,45 +563,81 @@ function staticCrash(dep,arr,crash,targetSVG, planeSVG,depLabel, arrLabel, crash
     var crashLineArc = {
         "color":'#FF0000',
         "id": "crashLineArc"+crashId,
-        "alpha": flightLineAlpha,
-        "arrowAlpha":flightLineAlpha,
-        "arc": arc,
+        "alpha": 0,
+        "arrowAlpha":0,
+        //"arc": arc,
         "latitudes": [dep[0],crash[0]],
         "longitudes": [dep[1],crash[1]]
     };
-    var crashImg=  {
-        "id": "crash"+crashId,
-        "imageURL":'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Skull_%26_crossbones.svg/513px-Skull_%26_crossbones.svg.png',
-        "title": crashDescription,
-        "latitude": crash[0],
-        "longitude": crash[1],
-        "rollOverScale":3,
-        "alpha":initialImgAlpha
-        //"linkToObject": ["arrTarget"+crashId,"depTarget"+crashId]
-    };
+
 
     var depTarget=  {
         "id": "depTarget"+crashId,
+        "color":'#a20c13',
         "svgPath": targetSVG,
         "title": depLabel,
         "latitude": dep[0],
         "longitude": dep[1],
-        "rollOverScale":2,
+        "rollOverScale":1.5,
         "alpha":initialImgAlpha,
-        "LinkToObject":"crash"+crashId
+        "fixedSize":false,
+        "scale":0.75
+        //"LinkToObject":"crash"+crashId
     };
     var arrTarget=  {
         "id": "arrTarget"+crashId,
+        "color":'#a20c13',
         "svgPath": targetSVG,
         "title": arrLabel,
         "latitude": arr[0],
         "longitude":arr[1],
         "rollOverScale":2,
         "alpha":initialImgAlpha,
-        "LinkToObject":"crash"+crashId
+        "fixedSize":false,
+        "scale":0.75
+        //"LinkToObject":"crash"+crashId
+    };
+    var lines=[];
+    var images= [];
+    lines.push(flightLineArc,crashLineArc);
+    images.push(depTarget,arrTarget);
+
+    var mapObj = {
+        "id": crashId,
+        "latitude": crash[0],
+        "longitude": crash[1],
+        "zoomLevel": 2,
+        "lines": lines,
+        "images": images
     };
 
-    map["dataProvider"]["lines"].push(flightLineArc,crashLineArc);
-    map["dataProvider"]["images"].push(depTarget,arrTarget,crashImg);
+    map["dataProvider"]["images"].push(mapObj);
+
+    var crashImg=  {
+        "id": "crash"+crashId,
+        "imageURL":'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Skull_%26_crossbones.svg/513px-Skull_%26_crossbones.svg.png',
+        "title": crashDescription,
+        "latitude": crash[0],
+        "longitude": crash[1],
+        "rollOverScale":1.5,
+        "alpha":1,
+        "scale":2,
+        "linkToObject": crashId,
+        "fixedSize":false
+    };
+
+
+
+    //map["dataProvider"]["lines"].push(flightLineArc,crashLineArc);*/
+    map["dataProvider"]["images"].push(crashImg);
+
+    /*map.addListener("rollOverMapObject",map.getObjectById(crashId), function(event) {
+        window.alert("OK in");
+    });
+
+    map.addListener("rollOutMapObject",map.getObjectById(crashId), function(event) {
+        window.alert("OK out");
+    });*/
+
     map.validateData();
 }
