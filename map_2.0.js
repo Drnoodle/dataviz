@@ -91,16 +91,16 @@ var sideMenuManager = new function(){
 
         var totalCrashes = sortedResultList.reduce(reducer,0.00001);
 
-        for(var i = 0; i< Math.min(sortedResultList.length, companyResult.length-1); i++){
+        for(var i = 0; i< Math.min(sortedResultList.length, companyResult.length); i++){
             // first row dedicated to label
-            var cells = companyResult[i+1].querySelectorAll("td");
+            var cells = companyResult[i].querySelectorAll("td");
             cells[0].innerHTML = sortedResultList[i][0].substr(0,30);
             cells[1].innerHTML = sortedResultList[i][1];
             cells[2].innerHTML = Math.round(parseFloat(sortedResultList[i][1])/totalCrashes*100)+"%";
         }
 
-        for(var i = Math.min(sortedResultList.length, companyResult.length-1); i<companyResult.length-1; i++){
-            var cells = companyResult[i+1].querySelectorAll("td");
+        for(var i = Math.min(sortedResultList.length, companyResult.length); i<companyResult.length; i++){
+            var cells = companyResult[i].querySelectorAll("td");
             cells[0].innerHTML = "";
             cells[1].innerHTML = "";
             cells[2].innerHTML = "";
@@ -116,18 +116,29 @@ var sideMenuManager = new function(){
 var CrashChart = new function(){
 
     var marginX = 10;
-    var marginY = 10;
+    var marginY = 30;
     var chartWidth = 300;
     var chartHeight = 150;
 
     var path = null;
+
+    var graphicXaxis = null, graphicYaxis = null;
 
     document.addEventListener('DOMContentLoaded', function() {
 
         var chart = d3.select("svg")
             .attr("width", chartWidth)
             .attr("height", chartHeight)
+            .attr("overflow","visible")
             .append("g");
+
+        graphicYaxis = d3.select("svg").append("g")
+            .attr("class", "y axis")
+            .attr("transform", "translate("+marginX/2+",0)");
+
+        graphicXaxis = d3.select("svg").append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0,"+(-marginY/2)+")");
 
         path = chart.append("path")
             .attr("class", "chartPath")
@@ -153,14 +164,25 @@ var CrashChart = new function(){
             maxY = Math.max(maxY, data[i][1]);
         }
 
-
         var xScaler = d3.scaleLinear()
             .domain([minX, maxX])
-            .range([marginX,chartWidth-marginX]);
+            .range([marginX,chartWidth]);
 
         var yScaler = d3.scaleLinear()
             .domain([minY, maxY])
-            .range([chartHeight - marginY,marginY]);
+            .range([chartHeight - marginY,0]);
+
+        var yAxis = d3.axisRight().scale(yScaler).ticks(3).tickFormat(function(d){
+            return d;
+        });
+
+        var xAxis = d3.axisTop().scale(xScaler).ticks(3).tickFormat(function(d){
+            return d;
+        });
+
+        graphicYaxis.call(yAxis);
+        graphicXaxis.call(xAxis);
+
 
         var line = d3.line()
             .x(function(d){
@@ -370,6 +392,8 @@ function load_data(filePath){
             arr_long:arrival.long,
             crash_lat:crash.lat,
             crash_long:crash.long,
+            startCity:cols[6],
+            endCity:cols[7],
             description:cols[12],
             nb_a_bord:parseInt(cols[13]),
             nb_mort:parseInt(cols[14]),
@@ -499,8 +523,8 @@ function visualiseData(data,map,targetSVG,planeSVG){
         var dep = [crash["dep_lat"],crash["dep_long"]];
         var arr = [crash["arr_lat"],crash["arr_long"]];
         var crashPos = [crash["crash_lat"],crash["crash_long"]];
-        var depLabel= "paris";
-        var arrLabel = "Singapour";
+        var depLabel= crash.startCity;
+        var arrLabel = crash.endCity;
         var crashDescription= crash["description"];
         var crashId = crash['id'];
         animateCrash(dep,arr,crashPos,targetSVG, planeSVG,depLabel, arrLabel, crashDescription,map,crashId)
@@ -538,6 +562,12 @@ function init_range_selector(begin,end){
                 beginYear = ui.values[ 0 ];
                 endYear = ui.values[ 1 ];
 
+                data=dataLoader.getData(beginYear, endYear);
+
+                var companySorted = dataLoader.companyAndDeathSorted(beginYear, endYear);
+                CrashChart.update(beginYear, endYear, dataLoader.getYearAndDeath(beginYear,endYear));
+                sideMenuManager.updateResult(companySorted);
+
                 document.querySelector(".yearRangeTable .fromValue").innerHTML = beginYear;
                 document.querySelector(".yearRangeTable .toValue").innerHTML = endYear;
 
@@ -559,26 +589,30 @@ function init_range_selector(begin,end){
 
 
 function showCrashes(){
+
     map["dataProvider"]["images"]=[];
     map["dataProvider"]["lines"]=[];
-    map.validateData();
-    var dataCopy = JSON.parse( JSON.stringify( data) );
+
     var arrayLength = data.length;
     for (var i = 0; i < arrayLength; i++) {
-        var crash = dataCopy.shift();
+
+        var crash = data[i];
         var dep = [crash["dep_lat"],crash["dep_long"]];
         var arr = [crash["arr_lat"],crash["arr_long"]];
         var crashPos = [crash["crash_lat"],crash["crash_long"]];
-        var depLabel= "paris";
-        var arrLabel = "Singapour";
+        var depLabel= crash.startCity;
+        var arrLabel = crash.endCity;
         var crashDescription= crash["description"];
         var crashId = crash['id'];
         staticCrash(dep,arr,crashPos,targetSVG, planeSVG,depLabel, arrLabel, crashDescription,map,crashId);
         //Do something
     }
+
+    map.validateData();
+
 }
 
-function staticCrash(dep,arr,crash,targetSVG, planeSVG,depLabel, arrLabel, crashDescription,map,crashId) {
+function staticCrash(dep,arr,crash,targetSVG, planeSVG, depLabel, arrLabel, crashDescription,map,crashId) {
     var arc = -0.8;
     var dashLength = 3;
     var flightLineAlpha = 1;
@@ -649,7 +683,7 @@ function staticCrash(dep,arr,crash,targetSVG, planeSVG,depLabel, arrLabel, crash
 
     var crashImg=  {
         "id": "crash"+crashId,
-        "imageURL":'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Skull_%26_crossbones.svg/513px-Skull_%26_crossbones.svg.png',
+        "imageURL":'crash.png',
         "title": crashDescription,
         "latitude": crash[0],
         "longitude": crash[1],
@@ -673,5 +707,4 @@ function staticCrash(dep,arr,crash,targetSVG, planeSVG,depLabel, arrLabel, crash
         window.alert("OK out");
     });*/
 
-    map.validateData();
 }
