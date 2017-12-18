@@ -46,6 +46,7 @@ var mouseManager  = new function MousePosition(){
 
 mouseManager.addCallback(function(currX, currY){
 
+    /*
     var isControlerOpen = document.querySelector("aside").style.visibility != "hidden";
 
     if(currX < 80 && !isControlerOpen){
@@ -54,17 +55,14 @@ mouseManager.addCallback(function(currX, currY){
     else if(currX > 300 && isControlerOpen){
         document.querySelector("aside").style.visibility = "hidden";
     }
+    */
 
 
 });
 
 
-document.addEventListener('DOMContentLoaded', function(){
 
-    document.querySelector(".yearRangeTable .fromValue").innerHTML = beginYear;
-    document.querySelector(".yearRangeTable .toValue").innerHTML = endYear;
 
-}, false);
 
 
 var sideMenuManager = new function(){
@@ -72,27 +70,40 @@ var sideMenuManager = new function(){
     var companyResult = null;
 
     document.addEventListener('DOMContentLoaded', function(){
-
         companyResult = document.querySelectorAll(".airlines tr");
     }.bind(this));
 
     this.updateResult = function(sortedResultList){
 
-        if(companyResult == null){
+        if(companyResult == null || sortedResultList.length == 0){
             return;
         }
 
-        console.log(sortedResultList[0][1]);
-        var totalCrashes = sortedResultList.reduce( (acc, e)=>acc+e[1],0);
-        console.log(totalCrashes);
 
-        for(var i = 0; i< Math.min(sortedResultList.length, 10); i++ ){
+        var reducer = function(acc, newElem){
+            if(isNaN(newElem[1])){
+                return acc;
+            }
+            else {
+                return acc+ newElem[1];
+            }
+        };
 
+        var totalCrashes = sortedResultList.reduce(reducer,0.00001);
+
+        for(var i = 0; i< Math.min(sortedResultList.length, companyResult.length-1); i++){
+            // first row dedicated to label
             var cells = companyResult[i+1].querySelectorAll("td");
             cells[0].innerHTML = sortedResultList[i][0].substr(0,30);
             cells[1].innerHTML = sortedResultList[i][1];
             cells[2].innerHTML = Math.round(parseFloat(sortedResultList[i][1])/totalCrashes*100)+"%";
+        }
 
+        for(var i = Math.min(sortedResultList.length, companyResult.length-1); i<companyResult.length-1; i++){
+            var cells = companyResult[i+1].querySelectorAll("td");
+            cells[0].innerHTML = "";
+            cells[1].innerHTML = "";
+            cells[2].innerHTML = "";
         }
 
     };
@@ -164,7 +175,7 @@ var CrashChart = new function(){
     }.bind(this);
 
 
-}
+};
 
 
 
@@ -311,6 +322,24 @@ function animateCrash(dep,arr,crash,targetSVG, planeSVG,depLabel, arrLabel, cras
 /**  * @param filePath  *  * Return Promises<DataReader : fromDate, toDate> 
  *
  * id#Date#Location#Operator#Route#Type#Aboard#Fatalities#Summary#LatLongCrash#Start City Crash#End City Crash#Start City Geo Crash#End City Geo Crash#To_show
+ *
+ * id#Date#Route#Type#LatLongCrash#Start City Crash#End City Crash#Start City Geo Crash#End City Geo Crash#To_show
+ *
+ * id#
+ * id#
+ * Date#
+ * Route#
+ * Type#
+ * LatLongCrash#
+ * Start City Crash#
+ * End City Crash#
+ * Start City Geo Crash#
+ * End City Geo Crash#
+ * To_show#
+ * Operator#
+ * Summary#
+ * Aboard#
+ * Fatalities
  */
 
 function load_data(filePath){
@@ -329,31 +358,28 @@ function load_data(filePath){
 
         var cols = line.split("#");
 
-        var crash = parsePosition(cols[9]);
-        var depature = parsePosition(cols[12]);
-        var arrival = parsePosition(cols[13]);
+        var crash = parsePosition(cols[5]);
+        var depature = parsePosition(cols[8]);
+        var arrival = parsePosition(cols[9]);
         return {
             id:cols[0],
-            company:cols[3],
+            company:cols[11],
             dep_lat:depature.lat,
             dep_long:depature.long,
             arr_lat:arrival.lat,
             arr_long:arrival.long,
             crash_lat:crash.lat,
             crash_long:crash.long,
-            description:cols[8],
-            nb_a_bord:0,
-            nb_mort:0,
-            year:parseInt(cols[1].split("/")[2])
+            description:cols[12],
+            nb_a_bord:parseInt(cols[13]),
+            nb_mort:parseInt(cols[14]),
+            year:parseInt(cols[2].split("/")[2])
         };
     }
 
     function isRelevant(line){
-        return line.split("#")[14] == "True";
+        return line.split("#")[10] == "True";
     }
-
-
-
 
 
     return new Promise(function(resolve, error){
@@ -376,9 +402,9 @@ function load_data(filePath){
 
                 resolve(new function(){
 
-                    this.allData = objects;
+                    var allData = objects;
 
-                    this.yearAndCrashes = (function(){
+                    var yearAndDeath = (function(){
 
                         var tmp = {};
 
@@ -386,31 +412,67 @@ function load_data(filePath){
                             if(!(objects[i].year in tmp)){
                                 tmp[objects[i].year] = 0;
                             }
-                            tmp[objects[i].year] +=1;
+                            if(!isNaN(objects[i].nb_mort)){
+                                tmp[objects[i].year] += objects[i].nb_mort;
+                            }
                         }
 
-                        var yearAndCrashes = [];
+                        var yearAndDeath = [];
 
                         for(var key in tmp){
-                            yearAndCrashes.push([parseInt(key), tmp[key]]);
+                            yearAndDeath.push([parseInt(key), tmp[key]]);
                         }
 
-                        return yearAndCrashes;
+
+                        return yearAndDeath;
                     })();
 
                     this.getData = function(fromYear, toYear){
                         var requiredData = [];
-                        for(var i = 0; i<this.allData.length; i++){
-                            if(fromYear <= this.allData[i].year && this.allData[i].year <= toYear){
-                                requiredData.push(this.allData[i]);
+                        for(var i = 0; i<allData.length; i++){
+                            if(fromYear <= allData[i].year && allData[i].year <= toYear){
+                                requiredData.push(allData[i]);
                             }
                         }
                         return requiredData;
-                    };
+                    }.bind(this);
 
-                    this.crashByYear = function(fromYear, toYear){
-                        return this.yearAndCrashes.filter(t => fromYear <=  t[0] && t[0]<=toYear);
-                    }
+                    this.getYearAndDeath = function(fromYear, toYear){
+                        return yearAndDeath.filter(t => fromYear <=  t[0] && t[0]<=toYear);
+                    }.bind(this);
+
+                    this.getMinYear = function(){
+
+                        return allData.reduce((acc,newElem) => Math.min(acc, newElem.year),Number.MAX_VALUE);
+                    }.bind(this);
+
+                    this.getMaxYear = function(){
+                        return allData.reduce((acc,newElem) => Math.max(acc, newElem.year), 0);
+                    }.bind(this);
+
+                    this.companyAndDeathSorted = function(fromYear, toYear){
+
+                        var data = this.getData(fromYear, toYear);
+                        var crashCompanyCounter = {};
+
+                        for(var i = 0; i<data.length; i++){
+                            if(!(data[i].company in crashCompanyCounter)){
+                                crashCompanyCounter[data[i].company] = 0;
+                            }
+                            crashCompanyCounter[data[i].company] += data[i].nb_mort;
+                        }
+
+                        var tmp = [];
+
+                        for(var key in crashCompanyCounter){
+                            tmp.push([key, crashCompanyCounter[key]]);
+                        }
+
+                        crashCompanyCounter = tmp;
+                        crashCompanyCounter.sort(function(e1,e2){ return e2[1]-e1[1];});
+
+                        return crashCompanyCounter;
+                    }.bind(this);
 
                 });
 
@@ -463,8 +525,8 @@ function init_range_selector(begin,end){
     $( function() {
         $( "#slider-range" ).slider({
             range: true,
-            min: 1908,
-            max: 2010,
+            min: begin,
+            max: end,
             animate: true,
             values: [ begin, end ],
             slide: function( event, ui ) {
@@ -473,42 +535,12 @@ function init_range_selector(begin,end){
                     return;
                 }
 
-                var beginYear = ui.values[ 0 ];
-                var endYear = ui.values[ 1 ];
+                beginYear = ui.values[ 0 ];
+                endYear = ui.values[ 1 ];
 
                 document.querySelector(".yearRangeTable .fromValue").innerHTML = beginYear;
                 document.querySelector(".yearRangeTable .toValue").innerHTML = endYear;
 
-
-                data=dataLoader.getData(beginYear, endYear);
-
-                map["dataProvider"]["images"]=[];
-                map["dataProvider"]["lines"]=[];
-                map.validateData();
-                //showCrashes();
-
-
-                var crashCompanyCounter = {};
-
-                for(var i = 0; i<data.length; i++){
-                    if(!(data[i].company in crashCompanyCounter)){
-                        crashCompanyCounter[data[i].company] = 0;
-                    }
-                    crashCompanyCounter[data[i].company] += 1;
-                }
-
-                var tmp = [];
-
-                for(var key in crashCompanyCounter){
-                    tmp.push([key, crashCompanyCounter[key]]);
-                }
-
-                crashCompanyCounter = tmp;
-                crashCompanyCounter.sort(function(e1,e2){ return e2[1]-e1[1];});
-
-                CrashChart.update(2008, 2009, dataLoader.crashByYear(1500,2010));
-
-                sideMenuManager.updateResult(crashCompanyCounter);
 
             }
         });
@@ -521,6 +553,8 @@ function init_range_selector(begin,end){
 
 
 }
+
+
 
 
 

@@ -297,23 +297,81 @@
     map = init_map(config);
     var targetSVG = "M9,0C4.029,0,0,4.029,0,9s4.029,9,9,9s9-4.029,9-9S13.971,0,9,0z M9,15.93 c-3.83,0-6.93-3.1-6.93-6.93S5.17,2.07,9,2.07s6.93,3.1,6.93,6.93S12.83,15.93,9,15.93 M12.5,9c0,1.933-1.567,3.5-3.5,3.5S5.5,10.933,5.5,9S7.067,5.5,9,5.5 S12.5,7.067,12.5,9z";
     var planeSVG = "m2,106h28l24,30h72l-44,-133h35l80,132h98c21,0 21,34 0,34l-98,0 -80,134h-35l43,-133h-71l-24,30h-28l15,-47";
-    var beginYear = 2000;
+    var beginYear = 1900;
     var endYear = 2010;
 
     var data = [];
     var dataLoader = null;
 
-    load_data("map_test").then(function(res,err){
+
+    load_data("map_test_final").then(function(res,err){
+
         dataLoader = res;
+
         data = dataLoader.getData(beginYear, endYear);
+
+        beginYear = dataLoader.getMinYear();
+        console.log(dataLoader.getData(0,1000));
+        console.log(beginYear);
+
+        endYear = dataLoader.getMaxYear();
+
+        document.querySelector(".yearRangeTable .fromValue").innerHTML = beginYear;
+        document.querySelector(".yearRangeTable .toValue").innerHTML = endYear;
+
+        init_range_selector(beginYear,endYear);
+
+        console.log("a");
+        var companySorted = dataLoader.companyAndDeathSorted(beginYear, endYear);
+        CrashChart.update(beginYear, endYear, dataLoader.getYearAndDeath(beginYear,endYear));
+        sideMenuManager.updateResult(companySorted);
+
+        /*
         map["dataProvider"]["images"]=[];
         map["dataProvider"]["lines"]=[];
-        map.validateData();
         showCrashes();
+        */
+
+        showCrashes();
+
+        /*
+
+         (function(){
+
+         var lastBeginYear = -1, lastEndYear = -1;
+         var isWorking = false;
+
+         setInterval(function(){
+
+         return;
+
+         if(isWorking || lastBeginYear == beginYear && lastEndYear == endYear){
+         return;
+         }
+         isWorking = true;
+         lastBeginYear = beginYear;
+         lastEndYear = endYear;
+         data=dataLoader.getData(beginYear, endYear);
+
+         var companySorted = dataLoader.companyAndDeathSorted(beginYear, endYear);
+         CrashChart.update(beginYear, endYear, dataLoader.getYearAndDeath(beginYear,endYear));
+         sideMenuManager.updateResult(companySorted);
+
+         showCrashes();
+         isWorking = false;
+
+         }.bind(this),1000);
+
+
+         })();
+         */
+
     });
 
 
-    init_range_selector(beginYear,endYear);
+
+
+
 
 </script>
 
