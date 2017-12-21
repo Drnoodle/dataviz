@@ -85,7 +85,7 @@ var sideMenuManager = new function(){
                 return acc;
             }
             else {
-                return acc+ newElem[1];
+                return acc + newElem[1];
             }
         };
 
@@ -341,12 +341,7 @@ function animateCrash(dep,arr,crash,targetSVG, planeSVG,depLabel, arrLabel, cras
  */
 
 
-/**  * @param filePath  *  * Return Promises<DataReader : fromDate, toDate> 
- *
- * id#Date#Location#Operator#Route#Type#Aboard#Fatalities#Summary#LatLongCrash#Start City Crash#End City Crash#Start City Geo Crash#End City Geo Crash#To_show
- *
- * id#Date#Route#Type#LatLongCrash#Start City Crash#End City Crash#Start City Geo Crash#End City Geo Crash#To_show
- *
+/**  chartMap
  * id#
  * id#
  * Date#
@@ -362,10 +357,27 @@ function animateCrash(dep,arr,crash,targetSVG, planeSVG,depLabel, arrLabel, cras
  * Summary#
  * Aboard#
  * Fatalities
+ *
+ *
+ * id#
+ * Date#
+ * Time#
+ * Location#
+ * Operator#
+ * Route#
+ * Type#
+ * Aboard#
+ * Fatalities#
+ * Summary#
+ * LatLongCrash#
+ * Start City Crash#
+ * End City Crash#
+ * Start City Geo Crash#
+ * End City Geo Crash#
+ * To_show
  */
 
-function load_data(filePath){
-
+var ChartMapParser = new function(){
 
     function parsePosition(latLongString){
         var resStr = latLongString.substr(1,latLongString.length-1).split(",");
@@ -375,35 +387,78 @@ function load_data(filePath){
         };
     }
 
-    function lineParser(line){
-
+    this.lineParser = function(line){
 
         var cols = line.split("#");
 
-        var crash = parsePosition(cols[5]);
-        var depature = parsePosition(cols[8]);
-        var arrival = parsePosition(cols[9]);
+        var crash = parsePosition(cols[10]);
+        var depature = parsePosition(cols[13]);
+        var arrival = parsePosition(cols[14]);
+
         return {
             id:cols[0],
-            company:cols[11],
+            company:cols[4],
             dep_lat:depature.lat,
             dep_long:depature.long,
             arr_lat:arrival.lat,
             arr_long:arrival.long,
             crash_lat:crash.lat,
             crash_long:crash.long,
-            startCity:cols[6],
-            endCity:cols[7],
-            description:cols[12],
-            nb_a_bord:parseInt(cols[13]),
-            nb_mort:parseInt(cols[14]),
-            year:parseInt(cols[2].split("/")[2])
+            startCity:cols[11],
+            endCity:cols[12],
+            description:cols[9].substring(1, 200),
+            nb_a_bord:parseInt(cols[7]),
+            nb_mort:parseInt(cols[8]),
+            year:parseInt(cols[1].split("/")[2])
         };
-    }
+    };
 
-    function isRelevant(line){
-        return line.split("#")[10] == "True";
-    }
+    this.filter = function(line){
+        return line.split("#")[15] == "True";
+    };
+
+};
+
+
+
+/**  chartLine
+ * id#
+ * Date#
+ * Time#
+ * Location#
+ * Operator#
+ * Route#
+ * Type#
+ * Aboard#
+ * Fatalities#
+ * Summary
+ */
+
+var LineChartParser = new function(){
+
+    this.lineParser = function(line){
+
+        var cols = line.split("#");
+
+        var res = {
+            id:cols[0],
+            nb_mort:parseInt(cols[8]),
+            company:cols[4],
+            year:parseInt(cols[1].split("/")[2])
+        };
+
+        return res;
+    };
+
+    this.filter = function(line){
+        return true;
+    };
+};
+
+
+
+function load_data(filePath, lineParser, filter){
+
 
 
     return new Promise(function(resolve, error){
@@ -415,11 +470,13 @@ function load_data(filePath){
 
             if (rawFile.readyState == 4) {
 
+
                 var allText = rawFile.responseText;
                 var lines = allText.split("\n");
                 var objects = [];
                 for(var i = 1; i<lines.length; i++){
-                    if(isRelevant(lines[i])){
+
+                    if(filter(lines[i])){
                         objects.push(lineParser(lines[i]))
                     }
                 }
@@ -428,28 +485,7 @@ function load_data(filePath){
 
                     var allData = objects;
 
-                    var yearAndDeath = (function(){
-
-                        var tmp = {};
-
-                        for(var i = 0; i<objects.length; i++){
-                            if(!(objects[i].year in tmp)){
-                                tmp[objects[i].year] = 0;
-                            }
-                            if(!isNaN(objects[i].nb_mort)){
-                                tmp[objects[i].year] += objects[i].nb_mort;
-                            }
-                        }
-
-                        var yearAndDeath = [];
-
-                        for(var key in tmp){
-                            yearAndDeath.push([parseInt(key), tmp[key]]);
-                        }
-
-
-                        return yearAndDeath;
-                    })();
+                    this.data = allData;
 
                     this.getData = function(fromYear, toYear){
                         var requiredData = [];
@@ -461,42 +497,6 @@ function load_data(filePath){
                         return requiredData;
                     }.bind(this);
 
-                    this.getYearAndDeath = function(fromYear, toYear){
-                        return yearAndDeath.filter(t => fromYear <=  t[0] && t[0]<=toYear);
-                    }.bind(this);
-
-                    this.getMinYear = function(){
-
-                        return allData.reduce((acc,newElem) => Math.min(acc, newElem.year),Number.MAX_VALUE);
-                    }.bind(this);
-
-                    this.getMaxYear = function(){
-                        return allData.reduce((acc,newElem) => Math.max(acc, newElem.year), 0);
-                    }.bind(this);
-
-                    this.companyAndDeathSorted = function(fromYear, toYear){
-
-                        var data = this.getData(fromYear, toYear);
-                        var crashCompanyCounter = {};
-
-                        for(var i = 0; i<data.length; i++){
-                            if(!(data[i].company in crashCompanyCounter)){
-                                crashCompanyCounter[data[i].company] = 0;
-                            }
-                            crashCompanyCounter[data[i].company] += data[i].nb_mort;
-                        }
-
-                        var tmp = [];
-
-                        for(var key in crashCompanyCounter){
-                            tmp.push([key, crashCompanyCounter[key]]);
-                        }
-
-                        crashCompanyCounter = tmp;
-                        crashCompanyCounter.sort(function(e1,e2){ return e2[1]-e1[1];});
-
-                        return crashCompanyCounter;
-                    }.bind(this);
 
                 });
 
@@ -506,6 +506,87 @@ function load_data(filePath){
 
         rawFile.send();
     });
+
+}
+
+
+
+function ChartLineData(objects){
+
+
+    var allData = objects;
+
+    this.data = allData;
+
+    this.getData = function(fromYear, toYear){
+
+        var requiredData = [];
+
+        for(var i = 0; i<allData.length; i++){
+            if(fromYear <= allData[i].year && allData[i].year <= toYear){
+                requiredData.push(allData[i]);
+            }
+        }
+
+        return requiredData;
+
+    }.bind(this);
+
+    var yearAndDeath = (
+        function(){  
+            var tmp = {};  
+            for(var i = 0; i<objects.length; i++){ 
+                if(!(objects[i].year in tmp)){ 
+                    tmp[objects[i].year] = 0; 
+                } 
+                if(!isNaN(objects[i].nb_mort)){ 
+                    tmp[objects[i].year] += objects[i].nb_mort; 
+                } 
+            }  
+
+            var yearAndDeath = [];  
+            for(var key in tmp){ 
+                yearAndDeath.push([parseInt(key), tmp[key]]); 
+            }   
+
+            return yearAndDeath; 
+
+        })();
+
+
+      this.getYearAndDeath = function(fromYear, toYear){ 
+        return yearAndDeath.filter(t => fromYear <=  t[0] && t[0]<=toYear); 
+    }.bind(this); 
+
+    this.companyAndDeathSorted = function(fromYear, toYear){  
+
+        var data = this.getData(fromYear, toYear); 
+        var crashCompanyCounter = {};  
+        for(var i = 0; i<data.length; i++){ 
+            if(!(data[i].company in crashCompanyCounter)){ 
+                crashCompanyCounter[data[i].company] = 0; 
+            } 
+
+            crashCompanyCounter[data[i].company] += data[i].nb_mort; 
+        }  
+
+        var tmp = [];  
+
+        for(var key in crashCompanyCounter){ 
+
+            tmp.push([key, crashCompanyCounter[key]]); 
+
+        }  
+
+        crashCompanyCounter = tmp; 
+
+        crashCompanyCounter.sort(function(e1,e2){ return e2[1]-e1[1];});  
+
+
+        return crashCompanyCounter; 
+
+    }.bind(this);
+
 
 }
 
@@ -555,8 +636,29 @@ function init_range_selector(begin,end){
             values: [ begin, end ],
             slide: function( event, ui ) {
 
+
                 if(dataLoader == null){
                     return;
+                }
+
+                if(ui.values[ 1 ] - ui.values[ 0 ] > 10){
+
+                    var values = $( "#slider-range" ).slider( "option", "values" );
+
+                    if(values[0] > ui.values[0]){
+
+                        $( "#slider-range" ).slider({
+                            values: [ ui.values[ 0 ], ui.values[ 0 ] + 10]
+                        });
+
+                    }
+                    else {
+
+                        $( "#slider-range" ).slider({
+                            values: [ ui.values[ 1 ]-10, ui.values[ 1 ]]
+                        });
+                    }
+
                 }
 
                 beginYear = ui.values[ 0 ];
@@ -564,18 +666,20 @@ function init_range_selector(begin,end){
 
                 data=dataLoader.getData(beginYear, endYear);
 
-                var companySorted = dataLoader.companyAndDeathSorted(beginYear, endYear);
-                CrashChart.update(beginYear, endYear, dataLoader.getYearAndDeath(beginYear,endYear));
+                var companySorted = chartLineData.companyAndDeathSorted(beginYear, endYear);
+                CrashChart.update(beginYear, endYear, chartLineData.getYearAndDeath(beginYear,endYear));
                 sideMenuManager.updateResult(companySorted);
 
                 document.querySelector(".yearRangeTable .fromValue").innerHTML = beginYear;
                 document.querySelector(".yearRangeTable .toValue").innerHTML = endYear;
 
 
-            }
+            }.bind(this)
         });
+
         $( "#amount" ).val(   $( "#slider-range" ).slider( "values", 0 ) +
             " - " + $( "#slider-range" ).slider( "values", 1 ) );
+
     } );
 
 

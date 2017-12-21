@@ -307,56 +307,94 @@
 
     var data = [];
     var dataLoader = null;
+    var chartLineData = null;
 
 
-    load_data("map_test_final").then(function(res,err){
 
-        dataLoader = res;
-        beginYear = dataLoader.getMinYear();
-        endYear = dataLoader.getMaxYear();
+    load_data("chartMap2", ChartMapParser.lineParser, ChartMapParser.filter)
+            .then(function(res,err){
+
+                dataLoader = res;
+                beginYear = dataLoader.data.reduce((acc,newElem) => Math.min(acc, newElem.year),Number.MAX_VALUE);
+                endYear = dataLoader.data.reduce((acc,newElem) => Math.max(acc, newElem.year), 0);
+
+                document.querySelector(".yearRangeTable .fromValue").innerHTML = endYear-10;
+                document.querySelector(".yearRangeTable .toValue").innerHTML = endYear;
+
+                init_range_selector(beginYear,endYear);
+
+                var filter = function(x){
+
+                    if(typeof(x) == 'undefined'){
+                        return false;
+                    }
+
+                    var year = x.split("#")[1];
+
+                    if(typeof (year) == "undefined" || year.split("/").length<3){
+                        return false;
+                    }
+
+                    var year= parseInt(year.split("/")[2]);
+
+                    return year >= beginYear && year <= endYear;
+                }.bind(this);
+
+                $( "#slider-range" ).slider({
+                    values: [ endYear-10, endYear]
+                });
+
+                return load_data("chartLine", LineChartParser.lineParser, filter);
+
+            }).then(function(res, err){
+
+
+        chartLineData = new ChartLineData(res.data);
+
+        beginYear = endYear-10;
         data = dataLoader.getData(beginYear, endYear);
 
-        document.querySelector(".yearRangeTable .fromValue").innerHTML = beginYear;
-        document.querySelector(".yearRangeTable .toValue").innerHTML = endYear;
-
-        init_range_selector(beginYear,endYear);
-
-        var companySorted = dataLoader.companyAndDeathSorted(beginYear, endYear);
-        CrashChart.update(beginYear, endYear, dataLoader.getYearAndDeath(beginYear,endYear));
+        var companySorted = chartLineData.companyAndDeathSorted(beginYear, endYear);
+        CrashChart.update(beginYear, endYear, chartLineData.getYearAndDeath(beginYear,endYear));
         sideMenuManager.updateResult(companySorted);
 
-        showCrashes();
 
-         (function(){
-
-             var lastBeginYear = -1, lastEndYear = -1;
-             var isWorking = false;
-
-             var mouseDown = 0;
-
-             document.body.onmousedown = function() {
-                 mouseDown = 1;
-             };
-
-             document.body.onmouseup = function() {
-                 mouseDown = 0;
-             };
-
-             setInterval(function(){
-
-                 if(mouseDown || isWorking || lastBeginYear == beginYear && lastEndYear == endYear){
-                     return;
-                 }
-                 lastBeginYear = beginYear;
-                 lastEndYear = endYear;
-                 isWorking = true;
-                 showCrashes();
-                 isWorking = false;
-
-             }.bind(this),1000);
+        //showCrashes();
 
 
-         })();
+        (function(){
+
+            var lastBeginYear = -1, lastEndYear = -1;
+            var isWorking = false;
+
+            var mouseDown = 0;
+
+            document.body.onmousedown = function() {
+                mouseDown = 1;
+            };
+
+            document.body.onmouseup = function() {
+                mouseDown = 0;
+            };
+
+            setInterval(function(){
+
+                if(mouseDown || isWorking || lastBeginYear == beginYear && lastEndYear == endYear){
+                    return;
+                }
+
+                console.log(beginYear+"/"+endYear);
+
+                lastBeginYear = beginYear;
+                lastEndYear = endYear;
+                isWorking = true;
+                showCrashes();
+                isWorking = false;
+
+            }.bind(this),1000);
+
+
+        })();
 
 
     });
