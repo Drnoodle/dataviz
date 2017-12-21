@@ -2,12 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0ce72549-f4f4-4c1f-b253-b8ce4cda5acb" name="Default" comment="">
-      <change type="MOVED" beforePath="$PROJECT_DIR$/Preprocessing/For The Graph" afterPath="$PROJECT_DIR$/chartLine" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/map_test_final_4000-" afterPath="$PROJECT_DIR$/chartMap" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dataviz" afterPath="$PROJECT_DIR$/dataviz" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/index.html" afterPath="$PROJECT_DIR$/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/map_2.0.js" afterPath="$PROJECT_DIR$/map_2.0.js" />
     </list>
     <ignored path="project.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -30,11 +25,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="index.html" pinned="false" current-in-tab="true">
+      <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="453">
-              <caret line="390" column="16" selection-start-line="390" selection-start-column="16" selection-end-line="390" selection-end-column="16" />
+            <state relative-caret-position="198">
+              <caret line="373" column="14" selection-start-line="0" selection-start-column="0" selection-end-line="477" selection-end-column="7" />
               <folding>
                 <element signature="e#5326#6558#0" expanded="false" />
                 <element signature="n#script#9;n#body#0;n#html#0;n#!!top" expanded="false" />
@@ -63,11 +58,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="map_2.0.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="map_2.0.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/map_2.0.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="414">
-              <caret line="670" column="60" selection-start-line="670" selection-start-column="60" selection-end-line="670" selection-end-column="60" />
+            <state relative-caret-position="99">
+              <caret line="649" column="17" selection-start-line="649" selection-start-column="17" selection-end-line="649" selection-end-column="17" />
               <folding>
                 <element signature="e#9089#9130#0" expanded="false" />
                 <element signature="n#!!block;n#visualiseData#0" expanded="false" />
@@ -380,12 +375,12 @@
       <workItem from="1513602994599" duration="12761000" />
       <workItem from="1513634017280" duration="325000" />
       <workItem from="1513707404070" duration="1302000" />
-      <workItem from="1513716670208" duration="10378000" />
+      <workItem from="1513716670208" duration="10476000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="61909000" />
+    <option name="totallyTimeSpent" value="62007000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1280" height="800" extended-state="0" />
@@ -693,26 +688,26 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="198">
+          <caret line="373" column="14" selection-start-line="0" selection-start-column="0" selection-end-line="477" selection-end-column="7" />
+          <folding>
+            <element signature="e#5326#6558#0" expanded="false" />
+            <element signature="n#script#9;n#body#0;n#html#0;n#!!top" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/map_2.0.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="414">
-          <caret line="670" column="60" selection-start-line="670" selection-start-column="60" selection-end-line="670" selection-end-column="60" />
+        <state relative-caret-position="99">
+          <caret line="649" column="17" selection-start-line="649" selection-start-column="17" selection-end-line="649" selection-end-column="17" />
           <folding>
             <element signature="e#9089#9130#0" expanded="false" />
             <element signature="n#!!block;n#visualiseData#0" expanded="false" />
             <element signature="n#!!block;n#animateRange#0" expanded="false" />
             <element signature="n#!!block;n#showCrashes#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="453">
-          <caret line="390" column="16" selection-start-line="390" selection-start-column="16" selection-end-line="390" selection-end-column="16" />
-          <folding>
-            <element signature="e#5326#6558#0" expanded="false" />
-            <element signature="n#script#9;n#body#0;n#html#0;n#!!top" expanded="false" />
           </folding>
         </state>
       </provider>
