@@ -532,16 +532,17 @@ function ChartLineData(objects){
 
     }.bind(this);
 
+    // TODO :
     var yearAndDeath = (
         function(){  
             var tmp = {};  
             for(var i = 0; i<objects.length; i++){ 
                 if(!(objects[i].year in tmp)){ 
                     tmp[objects[i].year] = 0; 
-                } 
-                if(!isNaN(objects[i].nb_mort)){ 
-                    tmp[objects[i].year] += objects[i].nb_mort; 
-                } 
+                }
+
+                tmp[objects[i].year] += 1;
+
             }  
 
             var yearAndDeath = [];  
@@ -554,7 +555,7 @@ function ChartLineData(objects){
         })();
 
 
-      this.getYearAndDeath = function(fromYear, toYear){ 
+      this.getYearAndCrashes = function(fromYear, toYear){ 
         return yearAndDeath.filter(t => fromYear <=  t[0] && t[0]<=toYear); 
     }.bind(this); 
 
@@ -567,7 +568,9 @@ function ChartLineData(objects){
                 crashCompanyCounter[data[i].company] = 0; 
             } 
 
-            crashCompanyCounter[data[i].company] += data[i].nb_mort; 
+            if(!isNaN(data[i].nb_mort)){
+                crashCompanyCounter[data[i].company] += data[i].nb_mort; 
+            }
         }  
 
         var tmp = [];  
@@ -575,7 +578,6 @@ function ChartLineData(objects){
         for(var key in crashCompanyCounter){ 
 
             tmp.push([key, crashCompanyCounter[key]]); 
-
         }  
 
         crashCompanyCounter = tmp; 
@@ -615,14 +617,6 @@ function visualiseData(data,map,targetSVG,planeSVG){
     });
 }
 
-async function animateRange (){
-    map["dataProvider"]["images"]=[];
-    map["dataProvider"]["lines"]=[];
-    map.validateData();
-    var dataCopy = JSON.parse( JSON.stringify( data) );
-    await visualiseData(dataCopy,map,targetSVG,planeSVG);
-    showCrashes();
-}
 
 function init_range_selector(begin,end){
 
@@ -641,37 +635,14 @@ function init_range_selector(begin,end){
                     return;
                 }
 
-                if(ui.values[ 1 ] - ui.values[ 0 ] > 10){
+                data=dataLoader.getData(ui.values[0], ui.values[1]);
 
-                    var values = $( "#slider-range" ).slider( "option", "values" );
-
-                    if(values[0] > ui.values[0]){
-
-                        $( "#slider-range" ).slider({
-                            values: [ ui.values[ 0 ], ui.values[ 0 ] + 10]
-                        });
-
-                    }
-                    else {
-
-                        $( "#slider-range" ).slider({
-                            values: [ ui.values[ 1 ]-10, ui.values[ 1 ]]
-                        });
-                    }
-
-                }
-
-                beginYear = ui.values[ 0 ];
-                endYear = ui.values[ 1 ];
-
-                data=dataLoader.getData(beginYear, endYear);
-
-                var companySorted = chartLineData.companyAndDeathSorted(beginYear, endYear);
-                CrashChart.update(beginYear, endYear, chartLineData.getYearAndDeath(beginYear,endYear));
+                var companySorted = chartLineData.companyAndDeathSorted(ui.values[0], ui.values[1]);
+                CrashChart.update(ui.values[0], ui.values[1], chartLineData.getYearAndCrashes(ui.values[0],ui.values[1]));
                 sideMenuManager.updateResult(companySorted);
 
-                document.querySelector(".yearRangeTable .fromValue").innerHTML = beginYear;
-                document.querySelector(".yearRangeTable .toValue").innerHTML = endYear;
+                document.querySelector(".yearRangeTable .fromValue").innerHTML = ui.values[0];
+                document.querySelector(".yearRangeTable .toValue").innerHTML = ui.values[1];
 
 
             }.bind(this)
@@ -682,20 +653,14 @@ function init_range_selector(begin,end){
 
     } );
 
-
-
-
-
 }
 
 
 
 
-
-function showCrashes(){
+function showCrashes(data){
 
     map["dataProvider"]["images"]=[];
-    map["dataProvider"]["lines"]=[];
 
     var arrayLength = data.length;
     for (var i = 0; i < arrayLength; i++) {
@@ -717,98 +682,19 @@ function showCrashes(){
 }
 
 function staticCrash(dep,arr,crash,targetSVG, planeSVG, depLabel, arrLabel, crashDescription,map,crashId) {
-    var arc = -0.8;
-    var dashLength = 3;
-    var flightLineAlpha = 1;
-    var initialImgAlpha = 1;
 
-    var flightLineArc = {
-        "id": "flightLineArc"+crashId,
-        "dashLength": dashLength,
-        //"arc": arc,
-        "alpha": flightLineAlpha,
-        "arrowAlpha": flightLineAlpha,
-        "latitudes": [dep[0],arr[0]],
-        "longitudes": [dep[1],arr[1]]
-    };
-
-    var crashLineArc = {
-        "color":'#FF0000',
-        "id": "crashLineArc"+crashId,
-        "alpha": 0,
-        "arrowAlpha":0,
-        //"arc": arc,
-        "latitudes": [dep[0],crash[0]],
-        "longitudes": [dep[1],crash[1]]
-    };
-
-
-    var depTarget=  {
-        "id": "depTarget"+crashId,
-        "color":'#a20c13',
-        "svgPath": targetSVG,
-        "title": depLabel,
-        "latitude": dep[0],
-        "longitude": dep[1],
-        "rollOverScale":1.5,
-        "alpha":initialImgAlpha,
-        "fixedSize":false,
-        "scale":0.75
-        //"LinkToObject":"crash"+crashId
-    };
-    var arrTarget=  {
-        "id": "arrTarget"+crashId,
-        "color":'#a20c13',
-        "svgPath": targetSVG,
-        "title": arrLabel,
-        "latitude": arr[0],
-        "longitude":arr[1],
-        "rollOverScale":2,
-        "alpha":initialImgAlpha,
-        "fixedSize":false,
-        "scale":0.75
-        //"LinkToObject":"crash"+crashId
-    };
-    var lines=[];
-    var images= [];
-    lines.push(flightLineArc,crashLineArc);
-    images.push(depTarget,arrTarget);
-
-    var mapObj = {
-        "id": crashId,
-        "latitude": crash[0],
-        "longitude": crash[1],
-        "zoomLevel": 2,
-        "lines": lines,
-        "images": images
-    };
-
-    map["dataProvider"]["images"].push(mapObj);
-
-    var crashImg=  {
+    var crashImg =  {
         "id": "crash"+crashId,
         "imageURL":'crash.png',
-        "title": crashDescription,
+        "title": "",
         "latitude": crash[0],
         "longitude": crash[1],
         "rollOverScale":1.5,
         "alpha":1,
         "scale":2,
-        "linkToObject": crashId,
         "fixedSize":false
     };
 
-
-
-    //map["dataProvider"]["lines"].push(flightLineArc,crashLineArc);*/
     map["dataProvider"]["images"].push(crashImg);
-
-    /*map.addListener("rollOverMapObject",map.getObjectById(crashId), function(event) {
-        window.alert("OK in");
-    });
-
-    map.addListener("rollOutMapObject",map.getObjectById(crashId), function(event) {
-        window.alert("OK out");
-    });*/
 
 }

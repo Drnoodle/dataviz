@@ -302,10 +302,8 @@
     map = init_map(config);
     var targetSVG = "M9,0C4.029,0,0,4.029,0,9s4.029,9,9,9s9-4.029,9-9S13.971,0,9,0z M9,15.93 c-3.83,0-6.93-3.1-6.93-6.93S5.17,2.07,9,2.07s6.93,3.1,6.93,6.93S12.83,15.93,9,15.93 M12.5,9c0,1.933-1.567,3.5-3.5,3.5S5.5,10.933,5.5,9S7.067,5.5,9,5.5 S12.5,7.067,12.5,9z";
     var planeSVG = "m2,106h28l24,30h72l-44,-133h35l80,132h98c21,0 21,34 0,34l-98,0 -80,134h-35l43,-133h-71l-24,30h-28l15,-47";
-    var beginYear = 1900;
-    var endYear = 2010;
 
-    var data = [];
+
     var dataLoader = null;
     var chartLineData = null;
 
@@ -352,46 +350,46 @@
         chartLineData = new ChartLineData(res.data);
 
         beginYear = endYear-10;
-        data = dataLoader.getData(beginYear, endYear);
 
         var companySorted = chartLineData.companyAndDeathSorted(beginYear, endYear);
-        CrashChart.update(beginYear, endYear, chartLineData.getYearAndDeath(beginYear,endYear));
+        CrashChart.update(beginYear, endYear, chartLineData.getYearAndCrashes(beginYear,endYear));
         sideMenuManager.updateResult(companySorted);
 
-
-        //showCrashes();
+        showCrashes(dataLoader.getData(beginYear, endYear));
 
 
         (function(){
 
             var lastBeginYear = -1, lastEndYear = -1;
-            var isWorking = false;
-
-            var mouseDown = 0;
-
-            document.body.onmousedown = function() {
-                mouseDown = 1;
-            };
 
             document.body.onmouseup = function() {
-                mouseDown = 0;
-            };
 
-            setInterval(function(){
+                var values = $( "#slider-range" ).slider( "option", "values" );
 
-                if(mouseDown || isWorking || lastBeginYear == beginYear && lastEndYear == endYear){
+                beginYear = values[0];
+                endYear = values[1];
+
+                if(lastBeginYear == beginYear && lastEndYear == endYear){
                     return;
                 }
 
-                console.log(beginYear+"/"+endYear);
-
                 lastBeginYear = beginYear;
                 lastEndYear = endYear;
-                isWorking = true;
-                showCrashes();
-                isWorking = false;
 
-            }.bind(this),1000);
+                $( "#slider-range" ).slider({
+                    values: [beginYear, endYear]
+                });
+
+                document.querySelector(".yearRangeTable .fromValue").innerHTML = beginYear;
+                document.querySelector(".yearRangeTable .toValue").innerHTML = endYear;
+
+                var companySorted = chartLineData.companyAndDeathSorted(beginYear, endYear);
+                CrashChart.update(beginYear, endYear, chartLineData.getYearAndCrashes(beginYear,endYear));
+                sideMenuManager.updateResult(companySorted);
+
+                showCrashes(dataLoader.getData(beginYear, endYear));
+
+            };
 
 
         })();
@@ -429,7 +427,7 @@
         <tr><td></td><td></td><td></td></tr>
     </table>
 
-    <h2>Death per year</h2>
+    <h2>Crashes per year</h2>
     <br/>
     <br/>
     <div class="crashChart">
