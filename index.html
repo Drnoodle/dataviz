@@ -231,6 +231,25 @@
         stroke:#bd5a5f;
     }
 
+
+
+    h1 {
+        font-size: 1.1em;
+        font-family: 'Montserrat', SansSerif;
+        text-align: left;
+        line-height: 1.1em;
+        color: rgb(80, 80, 80);
+        position:fixed;
+        top:20px;
+        left:370px;
+        z-index: 15;
+        text-transform: uppercase;
+        font-weight: bolder;
+        padding-left:5px;
+        padding-right:5px;
+
+    }
+
 </style>
 
 <!-- Resources -->
@@ -355,6 +374,9 @@
         CrashChart.update(beginYear, endYear, chartLineData.getYearAndCrashes(beginYear,endYear));
         sideMenuManager.updateResult(companySorted);
 
+        var newTitle = "Air crashes from " + beginYear +" to " + endYear;
+        document.querySelector("h1").innerHTML = newTitle;
+
         showCrashes(dataLoader.getData(beginYear, endYear));
 
 
@@ -387,6 +409,9 @@
                 CrashChart.update(beginYear, endYear, chartLineData.getYearAndCrashes(beginYear,endYear));
                 sideMenuManager.updateResult(companySorted);
 
+                var newTitle = "Air crashes from " + beginYear +" to " + endYear;
+                titleAnim(document.querySelector("h1"), newTitle, "#bd5a5f",  1000);
+
                 showCrashes(dataLoader.getData(beginYear, endYear));
 
             };
@@ -405,6 +430,8 @@
 </script>
 
 
+
+<h1></h1>
 
 <aside>
 
