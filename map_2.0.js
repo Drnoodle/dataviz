@@ -406,7 +406,7 @@ var ChartMapParser = new function(){
             crash_long:crash.long,
             startCity:cols[11],
             endCity:cols[12],
-            description:cols[9].substring(1, 200),
+            description:cols[9].substring(1, 300),
             nb_a_bord:parseInt(cols[7]),
             nb_mort:parseInt(cols[8]),
             year:parseInt(cols[1].split("/")[2])
@@ -686,7 +686,7 @@ function staticCrash(dep,arr,crash,targetSVG, planeSVG, depLabel, arrLabel, cras
     var crashImg =  {
         "id": "crash"+crashId,
         "imageURL":'crash.png',
-        "title": "",
+        "title": crashDescription,
         "latitude": crash[0],
         "longitude": crash[1],
         "rollOverScale":1.5,
