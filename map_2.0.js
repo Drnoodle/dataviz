@@ -406,7 +406,7 @@ var ChartMapParser = new function(){
             crash_long:crash.long,
             startCity:cols[11],
             endCity:cols[12],
-            description:cols[9].substring(1, 300),
+            description:cols[9],
             nb_a_bord:parseInt(cols[7]),
             nb_mort:parseInt(cols[8]),
             year:parseInt(cols[1].split("/")[2])
