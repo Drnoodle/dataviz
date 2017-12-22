@@ -24,18 +24,19 @@ In the map you can filter the flights by:
 - Number of deaths: number of victims of that flight
 When the mouse of the user is put on an edge, further details about the crash are visualised.
 
-### 2. Plot of the number of injuries/deaths per year
+### 2. Plot of the number of deaths per year
 This view is located on the bottom of the map.
 It captures the range of years the user interested in and plot the total number of injuries/deaths for every year.
 When the mouse of the user is put on a year, the crashes in that year are hilighted in the map. 
 
-### 3. Top 20 airline operators bar chart:
+### 3. Top 10 airline operators bar chart:
 This bar chart contains the 10 most dangerous airline operators for the range of years introduced by the user
 When the mouse of the user is put on a bar, the crashes corresponding to that airline are hilighted in the map.  
-
 
 
 
 Website : https://drnoodle.github.io/dataviz/
 
 Screencast Link : https://www.youtube.com/watch?v=pRGYe5MVQQI
+
+Process book : https://github.com/Drnoodle/dataviz/blob/master/Process%20Book.pdf
